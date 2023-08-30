@@ -4,3 +4,18 @@
 
 * Fork this project.
 
+* Build for IOS
+```bash
+make bootstrap
+make create.project
+make ci.ios
+```
+
+* Build for Android
+```bash
+make bootstrap
+make create.project
+make ci.ios
+```
+
+
