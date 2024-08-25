@@ -1,12 +1,12 @@
 BASE.DIR=$(PWD)
 TEAKERNE.DIR=$(BASE.DIR)/teakerne
 ORG_NAME=teakerne
-APP_NAME=teakerne
+APP_NAME=prototype
 BASE_DIR=$(PWD)
 ifneq (,$(wildcard $(TEAKERNE.DIR)))
 include $(TEAKERNE.DIR)/Makefile
 else
-$(error teakerne is missing)
+$(warning teakerne is missing)
 endif
 
 bootstrap: .FORCE
