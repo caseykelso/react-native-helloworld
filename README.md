@@ -2,16 +2,26 @@
 
 # How-To
 
-* Fork this project.
+# Fork this project as a baseline for your new app.
 
-* Build for IOS
+# Setup Ubuntu 24.04 Environment
+```bash
+sudo apt-get install git npm exuberant-ctags xclip ideviceinstaller
+```
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
+```
+
+
+# Build for IOS
 ```bash
 make bootstrap
 make create.project
 make ci.ios
 ```
 
-* Build for Android
+# Build for Android
 ```bash
 make bootstrap
 make create.project
