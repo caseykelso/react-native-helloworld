@@ -6,7 +6,9 @@
 
 # Setup Ubuntu 24.04 Environment
 ```bash
-sudo apt-get install git npm exuberant-ctags xclip ideviceinstaller
+sudo apt-get install git npm exuberant-ctags xclip ideviceinstaller  openjdk-17-jdk
+update-java-alternatives --list
+sudo update-java-alternatives  --set /usr/lib/jvm/java-1.17.0-openjdk-amd64
 ```
 
 ```bash
