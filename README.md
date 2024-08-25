@@ -1,4 +1,4 @@
-# react-native-helloworld - boostrap an ios or android react-native project in 5 minutes.
+# react-native-helloworld - bootstrap an ios or android react-native project in 5 minutes.
 
 # How-To
 
