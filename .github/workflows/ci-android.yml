@@ -32,18 +32,13 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Android SDK
+      - name: Configure git to use HTTPS
         run: |
-          mkdir -p downloads/cmdline-tools
-          cd downloads/cmdline-tools
-          wget -q "https://buildroot-sources.s3.amazonaws.com/commandlinetools-linux-9477386_latest.zip"
-          unzip -o commandlinetools-linux-9477386_latest.zip -d cmdline-tools
-          yes | cmdline-tools/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=downloads/cmdline-tools/platforms
-          cmdline-tools/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-37" "build-tools;36.0.0" "ndk;27.1.12297006" "cmake;3.22.1" --sdk_root=downloads/cmdline-tools/platforms
+          git config --global url."https://github.com/".insteadOf "git@github.com:"
 
-      - name: Clone teakerne submodule (public repo, HTTPS fine)
+      - name: Bootstrap project (clones teakerne)
         run: |
-          git clone --branch 0.0.6 https://github.com/caseykelso/react-native-teakerne.git teakerne
+          make bootstrap
 
       - name: Create React Native project
         env:
