@@ -106,3 +106,6 @@ keystore.jks
 
 # dependencies
 teakerne
+
+# React Native project (created by CI via make create.project)
+prototype/

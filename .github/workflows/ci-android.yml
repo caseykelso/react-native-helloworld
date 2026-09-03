@@ -34,28 +34,26 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      - name: Accept Android SDK licenses
-        run: yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=${ANDROID_SDK_ROOT}
-        env:
-          ANDROID_SDK_ROOT: '${{ runner.temp }}/android/sdk'
-          ANDROID_CMDL: ${{ runner.temp }}/cmdline-tools
-          PATH: ${{ runner.temp }}/cmdline-tools/latest/bin:${{ env.PATH }}
-
-      - name: Install Android SDK components
+      - name: Setup Android SDK
         run: |
           mkdir -p /tmp/cmdline-tools
           cd /tmp/cmdline-tools
-          # Download matching the Makefile setup
           wget -q "https://buildroot-sources.s3.amazonaws.com/commandlinetools-linux-9477386_latest.zip"
           unzip -q commandlinetools-linux-9477386_latest.zip
-          # Accept licenses
           yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=${ANDROID_SDK_ROOT}
-          # Install required components
           $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-37" "build-tools;36.0.0" "ndk;27.1.12297006" "cmake;3.22.1" --sdk_root=${ANDROID_SDK_ROOT}
 
-      - name: Clone teakerne submodule
+      - name: Clone teakerne submodule (public repo, HTTPS fine)
         run: |
           git clone --branch 0.0.6 https://github.com/caseykelso/react-native-teakerne.git /root/react-native-helloworld/teakerne
+
+      - name: Create React Native project (make create.project)
+        env:
+          ORG_NAME: prototype
+          APP_NAME: prototype
+          BASE_DIR: /root/react-native-helloworld
+        run: |
+          make create.project
 
       - name: Install NPM dependencies
         run: cd /root/react-native-helloworld/prototype && npm ci
