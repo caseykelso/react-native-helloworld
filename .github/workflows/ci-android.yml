@@ -32,13 +32,16 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Configure git to use HTTPS
+      - name: Clone teakerne submodule (public repo, HTTPS fine)
         run: |
-          git config --global url."https://github.com/".insteadOf "git@github.com:"
+          git clone --branch 0.0.6 https://github.com/caseykelso/react-native-teakerne.git teakerne
 
-      - name: Bootstrap project (clones teakerne)
+      - name: Create React Native project
+        env:
+          ORG_NAME: prototype
+          APP_NAME: prototype
         run: |
-          make bootstrap
+          make create.project
 
       - name: Create React Native project
         env:
