@@ -108,4 +108,5 @@ keystore.jks
 teakerne
 
 # React Native project (created by CI via make create.project)
+#TODO: comment this out
 prototype/
