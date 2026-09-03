@@ -21,7 +21,7 @@ endif
 
 bootstrap: .FORCE
 	git clone git@github.com:caseykelso/react-native-teakerne.git teakerne
-	cd $(BASE.DIR)/teakerne && git checkout fix
+	cd $(BASE.DIR)/teakerne && git checkout 0.0.5
 	mkdir -p $(BASE.DIR)/$(APP_NAME)
 
 create.project: .FORCE
