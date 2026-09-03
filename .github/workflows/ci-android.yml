@@ -11,9 +11,6 @@ jobs:
   build-android:
     name: Build Android unsigned
     runs-on: ubuntu-24.04
-    defaults:
-      run:
-        working-directory: /root/react-native-helloworld
 
     steps:
       - name: Checkout code
@@ -21,94 +18,52 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js 22.13.0
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22.13.0'
-          cache: 'npm'
+      - name: Install nvm
+        run: |
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm install 22.13.0
+          nvm use 22.13.0
 
       - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'gradle'
 
       - name: Setup Android SDK
         run: |
-          mkdir -p /tmp/cmdline-tools
-          cd /tmp/cmdline-tools
+          mkdir -p downloads/cmdline-tools
+          cd downloads/cmdline-tools
           wget -q "https://buildroot-sources.s3.amazonaws.com/commandlinetools-linux-9477386_latest.zip"
-          unzip -q commandlinetools-linux-9477386_latest.zip
-          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=${ANDROID_SDK_ROOT}
-          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-37" "build-tools;36.0.0" "ndk;27.1.12297006" "cmake;3.22.1" --sdk_root=${ANDROID_SDK_ROOT}
+          unzip -o commandlinetools-linux-9477386_latest.zip -d cmdline-tools
+          yes | cmdline-tools/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=downloads/cmdline-tools/platforms
+          cmdline-tools/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-37" "build-tools;36.0.0" "ndk;27.1.12297006" "cmake;3.22.1" --sdk_root=downloads/cmdline-tools/platforms
 
       - name: Clone teakerne submodule (public repo, HTTPS fine)
         run: |
-          git clone --branch 0.0.6 https://github.com/caseykelso/react-native-teakerne.git /root/react-native-helloworld/teakerne
+          git clone --branch 0.0.6 https://github.com/caseykelso/react-native-teakerne.git teakerne
 
-      - name: Create React Native project (make create.project)
+      - name: Create React Native project
         env:
           ORG_NAME: prototype
           APP_NAME: prototype
-          BASE_DIR: /root/react-native-helloworld
         run: |
           make create.project
 
-      - name: Install NPM dependencies
-        run: cd /root/react-native-helloworld/prototype && npm ci
-
-      - name: React Native Android bundle
+      - name: Build Android (unsigned)
+        env:
+          ORG_NAME: prototype
+          APP_NAME: prototype
         run: |
-          npx react-native bundle \
-            --platform android \
-            --dev false \
-            --entry-file index.js \
-            --bundle-output /root/react-native-helloworld/prototype/android/app/src/main/assets/index.android.bundle \
-            --assets-dest /root/react-native-helloworld/prototype/android/app/src/main/res
-
-      - name: Assemble Debug APK and AAB
-        run: cd /root/react-native-helloworld/prototype/android && ./gradlew assembleDebug
-
-      - name: Assemble Release APK and AAB
-        run: cd /root/react-native-helloworld/prototype/android && ./gradlew assembleRelease
-
-      - name: Package artifacts into dist/
-        run: |
-          HASH=$(git rev-parse --short=10 HEAD)
-          DIST_DIR=dist
-          mkdir -p $DIST_DIR
-
-          # Copy debug APK
-          cp /root/react-native-helloworld/prototype/android/app/build/outputs/apk/debug/app-debug.apk $DIST_DIR/prototype-debug-${HASH}.apk
-
-          # Copy release APK
-          cp /root/react-native-helloworld/prototype/android/app/build/outputs/apk/release/app-release.apk $DIST_DIR/prototype-release-${HASH}.apk
-
-          # Copy debug AAB
-          cp /root/react-native-helloworld/prototype/android/app/build/outputs/bundle/debug/app-debug.aab $DIST_DIR/prototype-debug-${HASH}.aab
-
-          # Copy release AAB (unsigned)
-          cp /root/react-native-helloworld/prototype/android/app/build/outputs/bundle/release/app-release.aab $DIST_DIR/prototype-release-unsigned-${HASH}.aab
-
-          # Generate md5sums and tar.gz archive
-          cd $DIST_DIR
-          md5sum prototype-debug-${HASH}.apk > prototype-debug-${HASH}.apk.md5
-          md5sum prototype-release-${HASH}.apk > prototype-release-${HASH}.apk.md5
-          md5sum prototype-debug-${HASH}.aab > prototype-debug-${HASH}.aab.md5
-          md5sum prototype-release-unsigned-${HASH}.aab > prototype-release-unsigned-${HASH}.aab.md5
-          tar czvf prototype-android-${HASH}.tar.gz \
-            prototype-debug-${HASH}.apk prototype-debug-${HASH}.apk.md5 \
-            prototype-release-${HASH}.apk prototype-release-${HASH}.apk.md5 \
-            prototype-debug-${HASH}.aab prototype-debug-${HASH}.aab.md5 \
-            prototype-release-unsigned-${HASH}.aab prototype-release-unsigned-${HASH}.aab.md5
-          md5sum prototype-android-${HASH}.tar.gz > prototype-android-${HASH}.tar.gz.md5
+          make ci.android
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: prototype-android-${{ github.sha }}
-          path: /root/react-native-helloworld/dist/prototype-android-${{ github.sha }}.tar.gz
+          path: dist/prototype-android-${{ github.sha }}.tar.gz
           retention-time: '7 days'
 
       - name: Create/Update GitHub Release
@@ -117,8 +72,8 @@ jobs:
           tag_name: ${{ github.sha }}
           name: Android Build ${{ github.sha }}
           files: |
-            /root/react-native-helloworld/dist/prototype-android-${{ github.sha }}.tar.gz
-            /root/react-native-helloworld/dist/prototype-android-${{ github.sha }}.tar.gz.md5
+            dist/prototype-android-${{ github.sha }}.tar.gz
+            dist/prototype-android-${{ github.sha }}.tar.gz.md5
           draft: false
           prerelease: false
           fail_on_unmatched: false
