@@ -27,7 +27,7 @@ make ci.ios
 ```bash
 make bootstrap
 make create.project
-make ci.ios
+make ci.android
 ```
 
 
