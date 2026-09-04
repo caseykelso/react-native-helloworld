@@ -31,6 +31,12 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: ''
+
+      - name: Accept Android SDK licenses
+        run: |
+          chmod +x /home/runner/work/react-native-helloworld/react-native-helloworld/downloads/cmdline-tools/cmdline-tools/latest/bin/sdkmanager
+          yes | /home/runner/work/react-native-helloworld/react-native-helloworld/downloads/cmdline-tools/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=/home/runner/work/react-native-helloworld/react-native-helloworld/downloads/cmdline-tools/platforms
 
       - name: Clone teakerne submodule (public repo, HTTPS fine)
         run: |
