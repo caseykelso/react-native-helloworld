@@ -1,0 +1,70 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ "**" ]
+
+permissions:
+  contents: write
+
+jobs:
+  build-android:
+    name: Build Android unsigned
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install OpenJDK 17 (matching README prerequisites)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-17-jdk
+          sudo update-java-alternatives --set /usr/lib/jvm/java-1.17.0-openjdk-amd64
+
+      - name: Install nvm
+        run: |
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm install 22.13.0
+          nvm use 22.13.0
+
+      - name: Clone teakerne submodule (public repo, HTTPS fine)
+        run: |
+          git clone --branch 0.0.7 https://github.com/caseykelso/react-native-teakerne.git teakerne
+
+      - name: Create React Native project
+        env:
+          ORG_NAME: prototype
+          APP_NAME: prototype
+        run: |
+          make create.project
+
+      - name: Build Android (unsigned)
+        env:
+          ORG_NAME: prototype
+          APP_NAME: prototype
+        run: |
+          make ci.android
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: prototype-android-${{ github.sha }}
+          path: dist/prototype-unsigned-*.tar.gz
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Create/Update GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: android-ci-${{ github.sha }}
+          name: Android Build ${{ github.sha }}
+          files: |
+            dist/prototype-unsigned-*.tar.gz
+            dist/prototype-unsigned-*.tar.gz.md5
+          draft: false
+          prerelease: false
