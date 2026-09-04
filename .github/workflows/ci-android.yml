@@ -3,6 +3,7 @@ name: Android CI
 on:
   push:
     branches: [ "**" ]
+    tags: [ "**" ]
 
 permissions:
   contents: write
@@ -61,8 +62,8 @@ jobs:
       - name: Create/Update GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: android-ci-${{ github.sha }}
-          name: Android Build ${{ github.sha }}
+          tag_name: ${{ github.ref_name }}
+          name: Android Build ${{ github.ref_name }}
           files: |
             dist/prototype-unsigned-*.tar.gz
             dist/prototype-unsigned-*.tar.gz.md5
