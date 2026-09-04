@@ -54,18 +54,17 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: prototype-android-${{ github.sha }}
-          path: dist/prototype-android-${{ github.sha }}.tar.gz
-          retention-time: '7 days'
+          path: dist/prototype-unsigned-*.tar.gz
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Create/Update GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.sha }}
+          tag_name: android-ci-${{ github.sha }}
           name: Android Build ${{ github.sha }}
           files: |
-            dist/prototype-android-${{ github.sha }}.tar.gz
-            dist/prototype-android-${{ github.sha }}.tar.gz.md5
+            dist/prototype-unsigned-*.tar.gz
+            dist/prototype-unsigned-*.tar.gz.md5
           draft: false
           prerelease: false
-          fail_on_unmatched: false
-          update_existing: true
