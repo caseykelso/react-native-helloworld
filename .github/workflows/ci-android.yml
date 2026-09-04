@@ -34,7 +34,7 @@ jobs:
 
       - name: Clone teakerne submodule (public repo, HTTPS fine)
         run: |
-          git clone --branch fix-android-sdk https://github.com/caseykelso/react-native-teakerne.git teakerne
+          git clone --branch 0.0.7 https://github.com/caseykelso/react-native-teakerne.git teakerne
 
       - name: Create React Native project
         env:
